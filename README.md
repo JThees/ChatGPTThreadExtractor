@@ -74,22 +74,57 @@ Examples:
 
 ## Customization
 
-You can customize the script by modifying `extract_conversations.py`:
+By default, the script extracts **ALL conversations** from your export file with no filtering or limits. However, you can customize the script by modifying `extract_conversations.py`:
 
-**Change output directory:**
+### Change output directory
+
+Modify the last line of the script:
 ```python
-extract_conversations('conversations.json', output_dir='my_custom_dir')
+if __name__ == '__main__':
+    extract_conversations('conversations.json', output_dir='my_custom_dir')
 ```
 
-**Filter conversations by date:**
+### Filter conversations by date
+
+To only extract conversations created after a specific date, modify the main loop in the `extract_conversations()` function. Find this section:
+
 ```python
-for conversation in conversations:
-    if conversation.get('create_time') > some_timestamp:
-        # process conversation
+# Process each conversation
+for idx, conversation in enumerate(conversations, 1):
+    title = conversation.get('title', 'Untitled')
 ```
 
-**Modify filename format:**
-Edit the filename construction in the `extract_conversations()` function.
+Replace it with:
+
+```python
+import time
+
+# Only process conversations created after Jan 1, 2025
+cutoff_timestamp = time.mktime(time.strptime("2025-01-01", "%Y-%m-%d"))
+
+# Process each conversation
+for idx, conversation in enumerate(conversations, 1):
+    # Skip conversations older than cutoff date
+    if conversation.get('create_time', 0) <= cutoff_timestamp:
+        continue
+
+    title = conversation.get('title', 'Untitled')
+```
+
+### Modify filename format
+
+Edit the filename construction in the `extract_conversations()` function around line 110:
+
+```python
+filename = f"{create_date}__{update_date}_{safe_title}.txt"
+```
+
+Change to your preferred format, for example:
+```python
+filename = f"{safe_title}_{create_date}.txt"  # Title first
+# or
+filename = f"{idx:03d}_{safe_title}.txt"  # Numbered with title
+```
 
 ## Technical Details
 
