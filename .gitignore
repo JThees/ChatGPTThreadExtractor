@@ -1,0 +1,9 @@
+# Large conversation data files
+conversations.json
+*.json
+
+# Extracted conversation output
+conversations_output/
+
+# System files
+nul
